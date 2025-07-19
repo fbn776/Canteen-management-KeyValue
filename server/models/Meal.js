@@ -51,11 +51,9 @@ const mealSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Compound index for efficient queries
 mealSchema.index({date: 1, isAvailable: 1});
 mealSchema.index({createdBy: 1});
 
-// Virtual for availability status
 mealSchema.virtual('status').get(function () {
     if (!this.isAvailable) return 'unavailable';
     if (this.quantity === 0) return 'out_of_stock';
@@ -63,21 +61,18 @@ mealSchema.virtual('status').get(function () {
     return 'available';
 });
 
-// Method to check if meal is available for ordering
 mealSchema.methods.canOrder = function () {
     return this.isAvailable && this.quantity > 0;
 };
 
-// Method to reduce quantity when ordered
 mealSchema.methods.reduceQuantity = function (amount = 1) {
     if (this.quantity >= amount) {
-        this.quantity -= amount;
+        this.quantity -= amount
         return true;
     }
     return false;
 };
 
-// Static method to get today's meals
 mealSchema.statics.getTodaysMeals = function () {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -93,7 +88,6 @@ mealSchema.statics.getTodaysMeals = function () {
     }).sort({createdAt: -1});
 };
 
-// Pre-save middleware to set originalQuantity
 mealSchema.pre('save', function (next) {
     if (this.isNew) {
         this.originalQuantity = this.quantity;
